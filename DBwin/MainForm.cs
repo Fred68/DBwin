@@ -336,7 +336,6 @@ namespace DBwin
 			}
 		private void eliminaCodiceToolStripMenuItem_Click(object sender, EventArgs e)
 			{
-			#warning CONTROLLARE SE OK !!!
 			// EliminaCodice();
 			Vedi(DialogData.TipoDialogEnum.Elimina);
 			}	
@@ -610,13 +609,11 @@ namespace DBwin
 			bool ok = false;
 			res = await CercaPerCodice();
 
-			#warning Inserire anche qui la dialog di query ?
-
 			switch(res.righe)
 				{
 				case 0:
 					{
-					log.ScriviLog($"Nessun codice trovato");
+					//log.ScriviLog($"Nessun codice trovato");
 					}
 					break;
 				case 1:
@@ -627,7 +624,7 @@ namespace DBwin
 					break;
 				default:
 					{
-					log.ScriviLog($"Trovati {res.righe} codici");
+					//log.ScriviLog($"Trovati {res.righe} codici");
 					}
 					break;
 				}
@@ -645,7 +642,7 @@ namespace DBwin
 				{
 				#warning	Verificare i messaggi di risposta
 				res = await conn.Elimina(codice.Item1, codice.Item2);
-				log.ScriviLog(res.MessagesToString());
+				//log.ScriviLog(res.MessagesToString());
 				}
 			
 			UpdateLayout();
@@ -710,53 +707,101 @@ namespace DBwin
 			}
 #endif
 
-
-		public bool ApplicaComandoDialogData(DialogData dd)
+		public async void ApplicaComandoDialogData(DialogData dd)
 			{
-			bool ok = false;
-			string[] par = dd.ToParamsArray();
-
-
-
 			
+			string[] p = null;										// Array dei parametri
+			bool ok = false;
+			Risposta res = null;
+
 			switch(dd.DdResult)
 				{
 				case DialogData.DialogDataResult.Annulla:			// Non fa nulla
 					break;
-				case DialogData.DialogDataResult.Elimina:			// Elimina codice dal database
+				case DialogData.DialogDataResult.Cerca:				// Cerca codice con parametri multipli
 					{
-					if(dd.CanWrite)
-						{
-						MessageBox.Show($"Contenuto della dialog:\n{dd.ToString()}");
-						}
-					else
-						{
-						log.ScriviLog("COMPLETARE !\nScrittura non abilitata");
-						}
+					MessageBox.Show($"Ricerca con più parametri: al momento non disponibile");
 					}
 					break;
+				case DialogData.DialogDataResult.Elimina:			// Elimina codice dal database
 				case DialogData.DialogDataResult.Scrivi:			// Modifica o aggiunge codice nel database
 					{
 					if(dd.CanWrite)
 						{
-						MessageBox.Show($"COMPLETARE !\nContenuto della dialog:\n{dd.ToString()}");
+						//MessageBox.Show($"Contenuto della dialog:\n{dd.ToString()}");
+						
+						p = dd.ToParamsArray();						// Ottiene l'array dei parametri
+						if (p != null)
+							{
+							int n;
+							res = await conn.Conta(p[1], p[2]);		// Richiede conteggio dei codici
+							int.TryParse(res.datDB, out n);			// Estrae il numero
+							switch(n)
+								{
+								case 0:								// Nessun codice trovato: ok se scrittura, no se eliminazione
+									{
+									if(dd.DdResult == DialogData.DialogDataResult.Scrivi)
+										{
+										ok = true;
+										}
+									else if(dd.DdResult == DialogData.DialogDataResult.Elimina)
+										{
+										log.ScriviLog($"Codice non trovato");
+										}
+									}
+									break;
+								case 1:								// Trovato un codice, ok se conferma dell'utente.
+									{
+									if(MessageBox.Show($"Codice {p[1]}{p[2]} esistente. Proseguire ?", dd.DdResult.ToString(),MessageBoxButtons.YesNo)==DialogResult.Yes)
+										{
+										ok = true;
+										}
+									}
+									break;
+								default:							// Trovati codici multipli. Errore.
+									{
+									log.ScriviLog($"Trovati {n} codici");
+									}
+									break;
+								}
+							}
+
 						}
 					else
 						{
-						log.ScriviLog("Scrittura non abilitata");
+						log.ScriviLog("Scrittura non abilitata.");
 						}
 					}
 					break;
-				case DialogData.DialogDataResult.Cerca:				// Cerca codice con parametri multipli
+				}	// Fine switch()
+
+			res = null;
+			if(ok && p!=null)
+				{
+				switch(dd.DdResult)
 					{
-					MessageBox.Show($"Ricerca con più parametri: non ancora disponibile");
-					}
+					case DialogData.DialogDataResult.Scrivi:
+						{
+						res = await conn.InserisciNew(dd.Tipo, p);
+						#warning VERIFICARE RISPOSTA
+						}
+						break;
+					case DialogData.DialogDataResult.Elimina:
+						{
+						res = await conn.Elimina(p[1], p[2]);
+						#warning VERIFICARE RISPOSTA
+						}
 					break;
+					}
 				}
-			return ok;
+
+			if(res != null)
+				{
+				MessageBox.Show(res.ToString());
+
+				}
 			}
 #endregion
-
 
 		#region Query
 		/// <summary>
@@ -768,7 +813,7 @@ namespace DBwin
 			res = await CercaPerCodice();
 			//QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp, DialogData.TipoDialogEnum.Modifica);
 			QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp, opSuDoppioClick);
-			log.ScriviLog(res.MessagesToString());
+			//log.ScriviLog(res.MessagesToString());
 			if( !res.isEmpty)
 				{
 				if(res.righe > 0)
@@ -808,7 +853,8 @@ namespace DBwin
 				}
 			return res;
 			}
-		
+
+#if DEBUG
 		/// <summary>
 		/// Apre dialog di ricerca per codice (singolo)
 		/// </summary>
@@ -850,10 +896,9 @@ namespace DBwin
 				}
 			return dict;
 			}
-
+#endif 
 		public async Task<DialogData> DialogDataDaCodiceSingolo(string cod, string mod)
 			{
-#warning USARE QUESTA FUNZIONE, disabilitare EstraiDatiCodiceSingolo() e sostituirla con la nuova.
 			DialogData dd = new DialogData(ref imp);
 			Dictionary<string, string> dict = new Dictionary<string, string>();
 			if (conn != null)
@@ -866,7 +911,7 @@ namespace DBwin
 #endif
 				int nsetcampi;
 				dd.Set(dict, out nsetcampi);							// Imposta la DialogData con i dati del dizionario
-				log.ScriviLog(res.MessagesToString() +"\n" + dd.ToString());	// Log della risposta
+				//log.ScriviLog(res.MessagesToString() +"\n" + dd.ToString());	// Log della risposta
 				}
 			return dd;
 			}
