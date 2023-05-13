@@ -131,12 +131,6 @@
     <EmbeddedResource Include="QueryResultForm.resx">
       <DependentUpon>QueryResultForm.cs</DependentUpon>
     </EmbeddedResource>
-    <None Include="..\..\..\Html\LocalWebsites\DBC\DB.php">
-      <Link>DB.php</Link>
-    </None>
-    <None Include="..\..\..\Html\LocalWebsites\DBC\php\db.inc.php">
-      <Link>db.inc.php</Link>
-    </None>
     <None Include="..\..\Schema.odt">
       <Link>Schema.odt</Link>
     </None>
@@ -147,6 +141,8 @@
     <None Include="db.cfg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="db.inc.php" />
+    <None Include="DB.php" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -176,9 +172,7 @@
     <Content Include="..\..\..\Html\LocalWebsites\DBC\conn.txt">
       <Link>conn.txt</Link>
     </Content>
-    <Content Include="..\..\..\Html\LocalWebsites\DBC\dbc01.sql">
-      <Link>dbc01.sql</Link>
-    </Content>
+    <Content Include="dbc01.sql" />
     <Content Include="esempio.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -73,9 +73,8 @@ CREATE TABLE IF NOT EXISTS `codici` (
   CONSTRAINT `FK_utente` FOREIGN KEY (`id_utente`) REFERENCES `utenti` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='Lista di tutti i codici.\r\nCon informazioni generiche.';
 
--- Dump dei dati della tabella dbc01.codici: ~44 rows (circa)
+-- Dump dei dati della tabella dbc01.codici: ~49 rows (circa)
 REPLACE INTO `codici` (`cod`, `mod`, `descrizione`, `id_utente`, `creazione`, `aggiornamento`, `id_ultimo`) VALUES
-	('', '', 'Valvola Fluido sistem iso01', 2, '2023-05-12 10:52:05', '2023-05-12 11:13:04', 2),
 	('100.11.123', '', 'Staffa', 5, '2019-06-22 08:33:51', '2019-06-22 08:33:51', 5),
 	('100.11.123', 'a', 'STAFFA ALLUNGATA', 1, '2019-06-22 08:18:19', '2019-09-14 14:22:29', 2),
 	('100.11.123', 'b', 'Staffa', 1, '2019-06-24 08:20:25', '2019-06-24 08:20:25', 1),
@@ -95,7 +94,6 @@ REPLACE INTO `codici` (`cod`, `mod`, `descrizione`, `id_utente`, `creazione`, `a
 	('201.11.100', '', 'STAFFA', 2, '2019-11-09 18:17:22', '2019-11-09 18:17:22', 2),
 	('201.11.100', 'a', 'STAFFA', 2, '2023-04-26 19:15:21', '2023-04-26 19:15:21', 2),
 	('20111.98765.001', '', 'Vite Umbrako M12x30', 2, '2019-11-09 18:18:07', '2019-11-09 18:18:07', 2),
-	('202.10.100', '', 'Parte 3/4', 2, '2023-05-02 20:59:56', '2023-05-02 21:01:32', 2),
 	('300.33.330', 'a', 'STAFFA', 2, '2019-11-25 00:51:07', '2019-11-25 00:52:35', 2),
 	('301.10.001', '', 'ASSIEME', 2, '2019-11-02 14:25:32', '2019-11-02 14:25:32', 2),
 	('301.10.100', '', 'STAFFA', 2, '2019-11-02 14:26:18', '2019-11-02 14:26:18', 2),
@@ -143,14 +141,13 @@ CREATE TABLE IF NOT EXISTS `commerciali` (
   CONSTRAINT `FK_costruttori` FOREIGN KEY (`costruttore`) REFERENCES `costruttori` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='Lista dei codici commerciali.\r\nCon dati specifici.\r\n';
 
--- Dump dei dati della tabella dbc01.commerciali: ~9 rows (circa)
+-- Dump dei dati della tabella dbc01.commerciali: ~7 rows (circa)
 REPLACE INTO `commerciali` (`cod`, `mod`, `modello`, `dettagli`, `costruttore`, `prodotto`) VALUES
-	('', '', 'iso01', '', 7, 2),
 	('1055.45567.122', '', 'M12x50', 'interamente filettata', 1, 1),
 	('1055.54789.123', '', '1605.302.10.20', 'TAGLI 20, CLASSE P', 2, 4),
 	('1058.32765.001', '', '1605.20.345', 'taglia 20, classe P', 2, 4),
 	('1058.54567.123', '', '1605.302.20.20', 'Classe SP', 2, 4),
-	('1059.11111.234', '', 'EV', '5/3 c.a.', 4, 2),
+	('1059.11111.234', '', 'EV', '53 c.a.', 4, 2),
 	('20111.98765.001', '', 'M12x30', '12.9', 1, 1),
 	('333.44.555', '', 'ASD', 'ASDFRE', 3, 2),
 	('999.88.777', '', '', '', 3, 11);
@@ -174,11 +171,10 @@ CREATE TABLE IF NOT EXISTS `costruttori` (
   `costruttore` varchar(255) NOT NULL DEFAULT '-',
   PRIMARY KEY (`id`),
   UNIQUE KEY `Nome_costruttore` (`costruttore`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='Lista dei nomi di costruttori o fornitori.\r\nID_dirty = 3.';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci COMMENT='Lista dei nomi di costruttori o fornitori.\r\nID_dirty = 3.';
 
 -- Dump dei dati della tabella dbc01.costruttori: ~6 rows (circa)
 REPLACE INTO `costruttori` (`id`, `costruttore`) VALUES
-	(8, ''),
 	(2, 'Bosch'),
 	(4, 'Camozzi'),
 	(3, 'Festo'),
@@ -631,7 +627,6 @@ REPLACE INTO `particolari` (`cod`, `mod`, `materiale`) VALUES
 	('789.10.200', '', 4),
 	('100.11.123', '', 6),
 	('201.11.100', '', 6),
-	('202.10.100', '', 6),
 	('113.10.100', '', 8),
 	('102.11.100', '', 10),
 	('201.11.100', 'a', 10);
