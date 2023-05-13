@@ -5,18 +5,18 @@
 #warning DA FARE
 //////// v	Leggere ed importare in strutture dati le tabelle materiali, costruttori, prodotti.
 //////// v	Scrivere nuova Form, analoga a LoginForm, per inserire più dati, leggere i valori dalle tabelle importate, verificare i valori.
-#warning .	Assicurarsi che possano essere aperti nuovi Form multipli. Ogni Form deve avere le sue strutture dati private.
+#warning .  Assicurarsi che possano essere aperti nuovi Form multipli. Ogni Form deve avere le sue strutture dati private.
 //////// x	Valutare se il progetto può essere WPF invece che Windows Form. Ma perderebbe la compatibilità con Se31: lasciare ivariato.
 //////// v	Scrivere i Form per l'inserimento di nuovi codici (di vario tipo).
 //////// v	Usare menù a discesa con i tipi (disegno, schema, commerciale...) per selezionare i controlli Form oppure usare Form differenti.
-#warning .	Studiare un form generico per le query, basate su condizioni multiple. 
+#warning .  Studiare un form generico per le query, basate su condizioni multiple. 
 //////// x	Creare un account su altervista e provare il database online. Non possible, non accetta le stored procedure
 //////// v	ATTENZIONE ! Dopo ogni comando (check stat o altro comando che imposta $this->sts = 1) viene visualizzato lo stato di utente connesso in lettura, invece che abilitata scrittura.
 //////// v	Aggiungere gestore click su tabelle, per copiare il codice (ed usarlo per operazioni successive).
 //////// v	Verificare funzione per leggere tutti i dati di un codice e salvarli in un oggetto
 #warning	Aggiungere, al Form di inserimento codice, la possibilità di usare l'oggetto con i dati di un codice.
 #warning	Usare listbox/combo: devono diventare textbox editabili ma anche con lista e restituire una stringa.
-//////// v	 Impostare i flag 'dirty' in u_connessi separatamente per liste, per ogni utente. Dopo caricamento, resettare il flag.
+//////// v	Impostare i flag 'dirty' in u_connessi separatamente per liste, per ogni utente. Dopo caricamento, resettare il flag.
 #warning	Alla richiesta di lista, aggiungere flag reinvia comunque. Il programma PHP conosce l'ID dell'utente.
 //////// v	Nella risposta di una lista, includere l'opzione: no change.
 #warning	Permettere l'invio di una risposta da php in più chiamate, almeno per le liste. Quindi includere richiesta lista + indice.
@@ -25,7 +25,7 @@
 ////////	Usare una classe Log per i messaggi da inviare alla rich text box.
 #warning	Aggiungere, alla classe Log, scrittura in un file di log opzionale (attenzione se più istanze del programma)
 ////////	I messaggi ricevuti dalla classe Log devono avere un timestamp.
-#warning	ALLUNGARE il ritardo nel file php: var $pwdDelay = 500; // ms Ritardo dopo inserimento password (contro attacchi ripetuti)
+#warning	Allungare il ritardo nel file php: var $pwdDelay = ... DA 500 A 3000 (contro attacchi).
 ////////	Disabilitare i controlli senza cambiare i colori di sfondo e primo piano (derivare nuova classe)
 #warning	Correggere il messagggio di log: 'Trovato 1 elemento' anche se il contenuto è 'errore'
 
@@ -176,6 +176,7 @@ namespace DBwin
 			#if !DEBUG
 			dirtyTestToolStripMenuItem.Enabled = dirtyTestToolStripMenuItem.Visible =false;
 			mnListeTest.Enabled = mnListeTest.Visible = false;
+			mnModificaCodice.Enabled = mnModificaCodice.Visible = false; 
 			#endif
 
 			}
@@ -280,7 +281,7 @@ namespace DBwin
 			}
 		private void Vedi_Click(object sender, EventArgs e)
 			{
-			Vedi();
+			Vedi(DialogData.TipoDialogEnum.Modifica);
 			}
 		private void ChangeAccessPassword_Click(object sender, EventArgs e)
 			{
@@ -321,7 +322,9 @@ namespace DBwin
 			}
 		private void vediCodiceSingolo_Click(object sender, EventArgs e)
 			{
+			#if DEBUG
 			ModificaCodiceSingolo();
+			#endif
 			}
 		private void materialiDirtyToolStripMenuItem_Click(object sender, EventArgs e)
 			{
@@ -333,14 +336,15 @@ namespace DBwin
 			}
 		private void eliminaCodiceToolStripMenuItem_Click(object sender, EventArgs e)
 			{
-			EliminaCodice();
+			#warning CONTROLLARE SE OK !!!
+			// EliminaCodice();
+			Vedi(DialogData.TipoDialogEnum.Elimina);
 			}	
 		private void nuovoCodice_Click(object sender, EventArgs e)
 			{
 			InsertNewCode();
 			}
 		
-
 		#endregion
 
 
@@ -565,7 +569,7 @@ namespace DBwin
 			if (conn != null)
 				{
 				Risposta res;
-				int n = 0;
+				int n;
 				string[] p = InsertDialogwithPostArray(ref dd);
 				if (p != null)
 					{
@@ -665,9 +669,11 @@ namespace DBwin
 			return p;
 			}
 		
+#if DEBUG
 		private async void ModificaCodiceSingolo()
 			{
 			bool ok = false;
+			
 			Dictionary<string, string> dct = await CercaPerCodiceSingolo();
 			
 			string cod, mod;
@@ -688,9 +694,6 @@ namespace DBwin
 				{
 				sb.AppendLine($"[{item.Key}]={item.Value}");
 				}
-#if DEBUG
-			MessageBox.Show($"Selezionato codice: {cod}{mod}\n{sb.ToString()}");
-#endif
 			if (ok)
 				{
 				DialogData dd = new DialogData(ref imp);
@@ -705,49 +708,66 @@ namespace DBwin
 					}
 				}
 			}
+#endif
+
 
 		public bool ApplicaComandoDialogData(DialogData dd)
 			{
 			bool ok = false;
+			string[] par = dd.ToParamsArray();
+
+
+
 			
-			MessageBox.Show($"Contenuto della dialog:\n{dd.ToString()}");
-
-			if(dd.CanWrite)
+			switch(dd.DdResult)
 				{
-
-				#warning COMPLETARE !!!
-
-				string[] par = dd.ToParamsArray();
-				switch(dd.DdResult)
+				case DialogData.DialogDataResult.Annulla:			// Non fa nulla
+					break;
+				case DialogData.DialogDataResult.Elimina:			// Elimina codice dal database
 					{
-					case DialogData.DialogDataResult.Annulla: 
-						break;
-					case DialogData.DialogDataResult.Elimina:
-						break;
-					case DialogData.DialogDataResult.Scrivi:
-						break;
-
+					if(dd.CanWrite)
+						{
+						MessageBox.Show($"Contenuto della dialog:\n{dd.ToString()}");
+						}
+					else
+						{
+						log.ScriviLog("COMPLETARE !\nScrittura non abilitata");
+						}
 					}
+					break;
+				case DialogData.DialogDataResult.Scrivi:			// Modifica o aggiunge codice nel database
+					{
+					if(dd.CanWrite)
+						{
+						MessageBox.Show($"COMPLETARE !\nContenuto della dialog:\n{dd.ToString()}");
+						}
+					else
+						{
+						log.ScriviLog("Scrittura non abilitata");
+						}
+					}
+					break;
+				case DialogData.DialogDataResult.Cerca:				// Cerca codice con parametri multipli
+					{
+					MessageBox.Show($"Ricerca con più parametri: non ancora disponibile");
+					}
+					break;
 				}
-			else
-				{
-				log.ScriviLog("Scrittura non abilitata");
-				}
-
 			return ok;
 			}
-		#endregion
+#endregion
 
 
 		#region Query
 		/// <summary>
 		/// Apre la dialog di ricerca per codice, poi mostra quella dei risultati
 		/// </summary>
-		private async void Vedi()
+		private async void Vedi(DialogData.TipoDialogEnum opSuDoppioClick)
 			{
 			Risposta res;
 			res = await CercaPerCodice();
-			QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp);
+			//QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp, DialogData.TipoDialogEnum.Modifica);
+			QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp, opSuDoppioClick);
 			log.ScriviLog(res.MessagesToString());
 			if( !res.isEmpty)
 				{
@@ -798,7 +818,6 @@ namespace DBwin
 			Dictionary<string, string> dict = new Dictionary<string, string>();
 			if (conn != null)
 				{
-				Risposta res;
 				string[] par;
 				InputForm lf = new InputForm("Codice", new string[] { "Codice", "Modifica" }, out par, "Cerca", "Annulla");
 				if (lf.ShowDialog() == DialogResult.OK)
@@ -830,6 +849,26 @@ namespace DBwin
 				log.ScriviLog(res.MessagesToString());
 				}
 			return dict;
+			}
+
+		public async Task<DialogData> DialogDataDaCodiceSingolo(string cod, string mod)
+			{
+#warning USARE QUESTA FUNZIONE, disabilitare EstraiDatiCodiceSingolo() e sostituirla con la nuova.
+			DialogData dd = new DialogData(ref imp);
+			Dictionary<string, string> dict = new Dictionary<string, string>();
+			if (conn != null)
+				{
+				Risposta res;
+				res = await conn.EstraiDatiCodice(cod, mod);			// Ottiene tutti i dati del codice.
+				dict = res.GetValues(0);								// Li estrae della prima riga e li inserisce in un dizionario 
+#if RESPONSE_DEBUG
+				MessageBox.Show($"{res.ToString()}",$"{url}");
+#endif
+				int nsetcampi;
+				dd.Set(dict, out nsetcampi);							// Imposta la DialogData con i dati del dizionario
+				log.ScriviLog(res.MessagesToString() +"\n" + dd.ToString());	// Log della risposta
+				}
+			return dd;
 			}
 
 		/// <summary>
@@ -956,7 +995,6 @@ namespace DBwin
 					break;
 					}
 				}
-			int l = rtbMessages.Lines.Length;
 			rtbMessages.ScrollToCaret();
 
 			Invalidate();
@@ -1003,7 +1041,7 @@ namespace DBwin
 			}
 		private void leggiValoreToolStripMenuItem_Click(object sender, EventArgs e)
 			{
-			int riga = -1;
+			int riga;
 			string titolo = string.Empty;
 
 			string[] par;

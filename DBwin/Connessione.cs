@@ -69,7 +69,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected < 1)
 				{
-				string res = string.Empty;
 				SHA256 hash = SHA256.Create();
 				byte[] bt = hash.ComputeHash(Encoding.UTF8.GetBytes(password));
 				StringBuilder strb = new StringBuilder();
@@ -98,7 +97,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "stat")
 					});
@@ -122,7 +120,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "vedi"),
 					new KeyValuePair<string, string>(Comandi["P1"], _maxRowResponse.ToString()),
@@ -145,7 +142,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "getCode"),
 					new KeyValuePair<string, string>(Comandi["P1"], _cod),
@@ -173,7 +169,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "countCode"),
 					new KeyValuePair<string, string>(Comandi["P1"], _cod),
@@ -202,7 +197,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if (((int)_connected > 0) && (par.Length == 10))
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "insert"),
 					new KeyValuePair<string, string>(Comandi["P1"], par[1]),
@@ -232,7 +226,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if (((int)_connected > 0) && (par.Length == 10))
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "insert"),
 					new KeyValuePair<string, string>(Comandi["P1"], par[1]),
@@ -262,7 +255,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "delete"),
 					new KeyValuePair<string, string>(Comandi["P1"], _cod),
@@ -333,7 +325,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				FormUrlEncodedContent stringContent = new FormUrlEncodedContent(new[]{
 					new KeyValuePair<string, string>(Comandi["COMMAND"], "logout")
 					});
@@ -363,7 +354,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				SHA256 hash = SHA256.Create();
 				byte[] bt = hash.ComputeHash(Encoding.UTF8.GetBytes(password));
 				StringBuilder strb = new StringBuilder();
@@ -395,7 +385,6 @@ namespace DBwin
 			Risposta r = new Risposta();
 			if ((int)_connected > 0)
 				{
-				string res = string.Empty;
 				SHA256 hash = SHA256.Create();
 				byte[] bt = hash.ComputeHash(Encoding.UTF8.GetBytes(password2));
 				StringBuilder strb = new StringBuilder();

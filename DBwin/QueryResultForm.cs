@@ -9,17 +9,24 @@ namespace DBwin
 		{
 		Risposta res;
 		Impostazioni imp;
+		DialogData.TipoDialogEnum _opDoppioClick;
 
 		/// <summary>
 		/// COSTRUTTORE
 		/// </summary>
 		/// <param name="title"></param>
-		public QueryResultForm(string title,  Impostazioni imp)
+		public QueryResultForm(string title,  Impostazioni imp, DialogData.TipoDialogEnum opDoppioClick)
 			{
 			InitializeComponent();
 			this.Text = title;
 			this.imp = imp;
+			this._opDoppioClick = opDoppioClick;
 			}
+
+		/// <summary>
+		/// Riempie il dataGridView con righe e colonne della risposta
+		/// </summary>
+		/// <param name="_res"></param>
 		public void SetResponse(Risposta _res)
 			{
 			res = _res;
@@ -36,25 +43,18 @@ namespace DBwin
 			Invalidate();
 			}
 
+		/// <summary>
+		/// Handler del doppio click
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private async void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
 			{
 			string cod, mod;
 			if(GetCodice(e.RowIndex, out cod, out mod))
 				{
-				Dictionary<string,string> dct = await imp.Mf.EstraiDatiCodiceSingolo(cod, mod);
-
-				StringBuilder sb = new StringBuilder();
-				foreach(var item in dct)
-					{
-					sb.AppendLine($"[{item.Key}]={item.Value}");
-					}
-#if DEBUG
-				MessageBox.Show($"Selezionato codice: {cod}{mod}\n{sb.ToString()}");
-#endif
-				DialogData dd = new DialogData(ref imp);
-				int nsetcampi;
-				dd.Set(dct, out nsetcampi);
-				dd.TipoDialog = DialogData.TipoDialogEnum.Modifica;
+				DialogData dd = await imp.Mf.DialogDataDaCodiceSingolo(cod, mod);
+				dd.TipoDialog = _opDoppioClick;
 				dd.CanWrite = imp.Mf.CanWrite;
 
 				if(imp.Mf.QueryDialog(ref dd))		// In DoubleClick (analogo a modifica codice singolo)...
@@ -94,7 +94,14 @@ namespace DBwin
 				}
 			return s;
 			}
-
+	
+		/// <summary>
+		/// Estrae codice e modifica di una riga della tabella dei risultati
+		/// </summary>
+		/// <param name="row">riga</param>
+		/// <param name="cod">codice (ref) </param>
+		/// <param name="mod">modifica (ref) </param>
+		/// <returns></returns>
 		public bool GetCodice(int row, out string cod, out string mod)
 			{
 			bool ok = false;

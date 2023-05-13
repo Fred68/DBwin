@@ -11,7 +11,7 @@ namespace DBwin
 	public class DialogData
 		{
 
-		public enum TipoDialogEnum {Nuovo, Modifica, Ricerca};
+		public enum TipoDialogEnum {Nuovo, Modifica, Ricerca, Elimina};
 		public enum DialogDataResult {Annulla, Scrivi, Elimina, Cerca};
 
 		Dictionary<string, string> campi;
@@ -178,7 +178,7 @@ namespace DBwin
 		/// Imposta i campi presenti in base a quelli letti dal dizionario (proveniente da una query)
 		/// </summary>
 		/// <param name="dict">Dizionario <strig,string></param>
-		/// <param name="nset">Numero di campi impostati</param>
+		/// <param name="nset">Numero di campi impostati (out)</param>
 		/// <returns>true se trovati tutti i campi di dict</returns>
 		public bool Set(Dictionary<string, string> dict, out int nset)
 			{
@@ -311,7 +311,7 @@ namespace DBwin
 		/// <returns></returns>
 		public string[] ToParamsArray()
 			{
-			string[] p = null;
+			string[] p;
 			p = new string[_imp.SizeParamsArray];
 			for (int i = 0; i < p.Length; i++)
 				p[i] = string.Empty;

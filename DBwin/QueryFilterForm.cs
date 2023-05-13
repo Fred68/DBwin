@@ -40,6 +40,19 @@ namespace DBwin
 			}
 
 		/// <summary>
+		/// Abilita i controlli solo se se ha il permesso di scrittura o se è una query
+		/// Disabilita se il comando della dialog è Elimina 
+		/// </summary>
+		/// <returns></returns>
+		private bool CrtlsEnabled()
+			{
+			bool enabled;
+			enabled =	(dd.CanWrite || dd.TipoDialog == DialogData.TipoDialogEnum.Ricerca)
+						&&
+						(dd.TipoDialog != DialogData.TipoDialogEnum.Elimina);
+			return enabled;
+			}
+		/// <summary>
 		/// Compone i controlli della dialog
 		/// </summary>
 		/// <returns></returns>
@@ -90,9 +103,8 @@ namespace DBwin
 									cb.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
 									cb.Sorted = false;				// MySql usa ORDER BY, già ordinati.
 
-									// Abilita solo se se ha il permesso di scrittura o se è una query
-									// Color clr = cb.BackColor; ... cb.BackColor = clr; non funziona
-									cb.Enabled = dd.CanWrite || dd.TipoDialog == DialogData.TipoDialogEnum.Ricerca;
+									// Abilita o disabilita il controllo 
+									cb.Enabled = CrtlsEnabled();
 
 #warning Usare stile DropDown e memorizzare la stringa, non la selezione.
 #warning Quando si aggiunge un valore ad una lista, impostare il corrispondente flag dirty per tutti gli utenti: in mysql.
@@ -120,9 +132,8 @@ namespace DBwin
 									tb.Size = new Size(szInp.Width, szInp.Height);
 									tb.Name = dc.query;
 									
-									// Abilita solo se se ha il permesso di scrittura o se è una query
-									// Color clr = tb.BackColor; ... tb.BackColor = clr; non funziona
-									tb.Enabled = dd.CanWrite || dd.TipoDialog == DialogData.TipoDialogEnum.Ricerca;
+									// Abilita o disabilita il controllo 
+									tb.Enabled = CrtlsEnabled();
 
 									ctrls.Add(dc.query, tb);	// Aggiunge il controllo al dizionario
 									this.Controls.Add(tb);
@@ -135,16 +146,26 @@ namespace DBwin
 								}
 							n++;		// Incrementa contatore dei controlli creati
 							}
-
-						
 						}
 					}	// Fine del foreach()
 
 				// Imposta il nome del pulsante btOK
-				btOk.Text = (dd.TipoDialog == DialogData.TipoDialogEnum.Ricerca) ? "Cerca" : "Scrivi";
+				switch(dd.TipoDialog)
+					{
+					case DialogData.TipoDialogEnum.Modifica:
+					case DialogData.TipoDialogEnum.Elimina:		// con Elimina il pulsante viene poi disabilitato
+						btOk.Text = "Aggiorna";
+						break;
+					case DialogData.TipoDialogEnum.Ricerca:
+						btOk.Text = "Cerca...";
+						break;
+					case DialogData.TipoDialogEnum.Nuovo:
+						btOk.Text = "Inserisci";
+						break;
+					}
 
 				// Blocca la scelta del tipo (particolare, assieme...) per la modifica di un codice esistente.
-				if(dd.TipoDialog == DialogData.TipoDialogEnum.Modifica)			
+				if((dd.TipoDialog == DialogData.TipoDialogEnum.Modifica) || (dd.TipoDialog == DialogData.TipoDialogEnum.Elimina))
 					{
 					lbType.Enabled = false;
 					}
@@ -153,6 +174,7 @@ namespace DBwin
 				btElimina.Enabled = dd.CanWrite;	
 				btOk.Enabled = dd.CanWrite || dd.TipoDialog == DialogData.TipoDialogEnum.Ricerca;
 
+				btOk.Enabled = CrtlsEnabled();
 				}
 			catch (Exception e)
 				{
