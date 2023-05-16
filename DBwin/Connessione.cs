@@ -191,7 +191,6 @@ namespace DBwin
 		/// <param name="t"></param>
 		/// <param name="par"></param>
 		/// <returns></returns>
-#warning Da completare !
 		public async Task<Risposta> Inserisci(TabelleDati.Tipi t, string[] par)
 			{
 			Risposta r = new Risposta();

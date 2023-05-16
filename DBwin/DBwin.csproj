@@ -98,11 +98,11 @@
     <Compile Include="QueryFilterForm.Designer.cs">
       <DependentUpon>QueryFilterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="QueryResultForm.cs">
+    <Compile Include="ResultForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="QueryResultForm.Designer.cs">
-      <DependentUpon>QueryResultForm.cs</DependentUpon>
+    <Compile Include="ResultForm.Designer.cs">
+      <DependentUpon>ResultForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Risposta.cs" />
     <Compile Include="TabelleDati.cs" />
@@ -128,8 +128,8 @@
     <EmbeddedResource Include="QueryFilterForm.resx">
       <DependentUpon>QueryFilterForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="QueryResultForm.resx">
-      <DependentUpon>QueryResultForm.cs</DependentUpon>
+    <EmbeddedResource Include="ResultForm.resx">
+      <DependentUpon>ResultForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="..\..\Schema.odt">
       <Link>Schema.odt</Link>

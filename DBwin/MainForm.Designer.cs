@@ -68,10 +68,10 @@
 			// rtbMessages
 			// 
 			this.rtbMessages.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.rtbMessages.Location = new System.Drawing.Point(0, 312);
+			this.rtbMessages.Location = new System.Drawing.Point(0, 116);
 			this.rtbMessages.MaxLength = 20;
 			this.rtbMessages.Name = "rtbMessages";
-			this.rtbMessages.Size = new System.Drawing.Size(905, 139);
+			this.rtbMessages.Size = new System.Drawing.Size(367, 139);
 			this.rtbMessages.TabIndex = 8;
 			this.rtbMessages.TabStop = false;
 			this.rtbMessages.Text = "";
@@ -85,7 +85,7 @@
             this.helpToolStripMenuItem});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(905, 24);
+			this.menuStrip1.Size = new System.Drawing.Size(367, 24);
 			this.menuStrip1.TabIndex = 11;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -98,8 +98,8 @@
             this.mScrittura,
             this.mLogout,
             this.mChangePassword,
-            this.esciToolStripMenuItem,
-            this.lOGINPippoToolStripMenuItem});
+            this.lOGINPippoToolStripMenuItem,
+            this.esciToolStripMenuItem});
 			this.connessioneToolStripMenuItem.Name = "connessioneToolStripMenuItem";
 			this.connessioneToolStripMenuItem.Size = new System.Drawing.Size(87, 20);
 			this.connessioneToolStripMenuItem.Text = "Connessione";
@@ -207,21 +207,21 @@
 			// mnVedi
 			// 
 			this.mnVedi.Name = "mnVedi";
-			this.mnVedi.Size = new System.Drawing.Size(180, 22);
+			this.mnVedi.Size = new System.Drawing.Size(144, 22);
 			this.mnVedi.Text = "Vedi";
 			this.mnVedi.Click += new System.EventHandler(this.Vedi_Click);
 			// 
 			// mnListeTest
 			// 
 			this.mnListeTest.Name = "mnListeTest";
-			this.mnListeTest.Size = new System.Drawing.Size(180, 22);
-			this.mnListeTest.Text = "Liste Test";
+			this.mnListeTest.Size = new System.Drawing.Size(144, 22);
+			this.mnListeTest.Text = "Liste [debug]";
 			this.mnListeTest.Click += new System.EventHandler(this.ListeTest_Click);
 			// 
 			// mnQuery
 			// 
 			this.mnQuery.Name = "mnQuery";
-			this.mnQuery.Size = new System.Drawing.Size(180, 22);
+			this.mnQuery.Size = new System.Drawing.Size(144, 22);
 			this.mnQuery.Text = "Query";
 			this.mnQuery.Click += new System.EventHandler(this.Query_Click);
 			// 
@@ -232,27 +232,27 @@
             this.dIRTYToolStripMenuItem,
             this.dIRTYToolStripMenuItem1});
 			this.dirtyTestToolStripMenuItem.Name = "dirtyTestToolStripMenuItem";
-			this.dirtyTestToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-			this.dirtyTestToolStripMenuItem.Text = "Dirty Test";
+			this.dirtyTestToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+			this.dirtyTestToolStripMenuItem.Text = "Dirty [debug]";
 			// 
 			// costruttoriDirtyToolStripMenuItem
 			// 
 			this.costruttoriDirtyToolStripMenuItem.Name = "costruttoriDirtyToolStripMenuItem";
-			this.costruttoriDirtyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.costruttoriDirtyToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
 			this.costruttoriDirtyToolStripMenuItem.Text = "Costruttori dirty";
 			this.costruttoriDirtyToolStripMenuItem.Click += new System.EventHandler(this.costruttoriDirtyToolStripMenuItem_Click);
 			// 
 			// dIRTYToolStripMenuItem
 			// 
 			this.dIRTYToolStripMenuItem.Name = "dIRTYToolStripMenuItem";
-			this.dIRTYToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.dIRTYToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
 			this.dIRTYToolStripMenuItem.Text = "Materiali dirty";
 			this.dIRTYToolStripMenuItem.Click += new System.EventHandler(this.materialiDirtyToolStripMenuItem_Click);
 			// 
 			// dIRTYToolStripMenuItem1
 			// 
 			this.dIRTYToolStripMenuItem1.Name = "dIRTYToolStripMenuItem1";
-			this.dIRTYToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+			this.dIRTYToolStripMenuItem1.Size = new System.Drawing.Size(158, 22);
 			this.dIRTYToolStripMenuItem1.Text = "Prodotti dirty";
 			this.dIRTYToolStripMenuItem1.Click += new System.EventHandler(this.prodottiiDirtyToolStripMenuItem_Click);
 			// 
@@ -269,21 +269,21 @@
 			// nuovoCodiceToolStripMenuItem
 			// 
 			this.nuovoCodiceToolStripMenuItem.Name = "nuovoCodiceToolStripMenuItem";
-			this.nuovoCodiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.nuovoCodiceToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
 			this.nuovoCodiceToolStripMenuItem.Text = "Nuovo codice";
 			this.nuovoCodiceToolStripMenuItem.Click += new System.EventHandler(this.nuovoCodice_Click);
 			// 
 			// mnModificaCodice
 			// 
 			this.mnModificaCodice.Name = "mnModificaCodice";
-			this.mnModificaCodice.Size = new System.Drawing.Size(180, 22);
-			this.mnModificaCodice.Text = "Modifica codice";
+			this.mnModificaCodice.Size = new System.Drawing.Size(204, 22);
+			this.mnModificaCodice.Text = "Modifica codice [debug]";
 			this.mnModificaCodice.Click += new System.EventHandler(this.vediCodiceSingolo_Click);
 			// 
 			// eliminaCodiceToolStripMenuItem
 			// 
 			this.eliminaCodiceToolStripMenuItem.Name = "eliminaCodiceToolStripMenuItem";
-			this.eliminaCodiceToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.eliminaCodiceToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
 			this.eliminaCodiceToolStripMenuItem.Text = "Elimina codice";
 			this.eliminaCodiceToolStripMenuItem.Click += new System.EventHandler(this.eliminaCodiceToolStripMenuItem_Click);
 			// 
@@ -306,9 +306,9 @@
 			// 
 			this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsStato});
-			this.statusStrip1.Location = new System.Drawing.Point(0, 290);
+			this.statusStrip1.Location = new System.Drawing.Point(0, 94);
 			this.statusStrip1.Name = "statusStrip1";
-			this.statusStrip1.Size = new System.Drawing.Size(905, 22);
+			this.statusStrip1.Size = new System.Drawing.Size(367, 22);
 			this.statusStrip1.TabIndex = 12;
 			this.statusStrip1.Text = "statusStrip1";
 			// 
@@ -327,7 +327,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(905, 451);
+			this.ClientSize = new System.Drawing.Size(367, 255);
 			this.Controls.Add(this.statusStrip1);
 			this.Controls.Add(this.rtbMessages);
 			this.Controls.Add(this.menuStrip1);

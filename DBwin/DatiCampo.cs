@@ -45,7 +45,7 @@ namespace DBwin
 
 		bool bOk;
 
-		static int nParm;       // Numero di parametri della funzione (costruttore o Set())
+		static int nParm;       // Numero di parametri della funzione (costruttore o SetSelezione())
 		static int nFlg;        // Numero di flag, lunghezza array
 
 		/// <summary>

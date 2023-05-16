@@ -23,10 +23,15 @@ namespace DBwin
 			_active = _writeEnabled = false;
 			sw = new StreamWriter("Log.txt",true);
 			sw.AutoFlush = true;
+
+			#warning PER ORA CHIUDE IL FILE (nome unico, impedisce altre istanze)
+			sw.Close();
+
 			}
 
 		public void ScriviLog(string msg)
 			{
+			#warning Aggiungere scrittura su file di Log, se attivo e se la scrittura è abilitata
 			_funzioneAggiuntiva(msg);
 			}
 

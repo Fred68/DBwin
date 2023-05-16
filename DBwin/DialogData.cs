@@ -2,24 +2,75 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DBwin
 	{
 
-	
+
 	public class DialogData
 		{
 
 		public enum TipoDialogEnum {Nuovo, Modifica, Ricerca, Elimina};
 		public enum DialogDataResult {Annulla, Scrivi, Elimina, Cerca};
+		public enum TipoRicercaEnum {PerCodice, Completa};
 
+		class Selezione
+			{
+			int indice;
+			string testo;
+
+			public int Indice
+				{
+				get { return indice; }
+				set { indice = value; }
+				}
+			public string Testo
+				{
+				get { return testo; }
+				set { testo = value; }
+				}
+
+			public Selezione(int _sel, string _txt)
+				{
+				indice = _sel;
+				testo = _txt;
+				}
+			public Selezione(string _txt)
+				{
+				indice = -1;
+				testo = _txt;
+				}
+			public Selezione()
+				{
+				indice = -1;
+				testo = string.Empty;
+				}
+
+			public override string ToString()
+				{
+				StringBuilder sb = new StringBuilder();
+				sb.Append(indice);
+				sb.Append(',');
+				sb.Append(testo);
+				return sb.ToString();
+				}
+			}
+
+		/// <summary>
+		/// Dizionario che ha per chiavi i campi della query e contenuto il testo
+		/// </summary>
 		Dictionary<string, string> campi;
-		Dictionary<string, int> selezioni;
+
+		/// <summary>
+		/// Dizionario che ha per chiavi i campi della query e contenuto la selezione
+		/// </summary>
+		Dictionary<string, Selezione> selezioni;
+
 		Impostazioni.TipoCodice tipo;
 		Impostazioni _imp;
 
 		TipoDialogEnum _tipoDialog;
+		TipoRicercaEnum _tipoRicerca;
 		bool _canWrite;
 		DialogDataResult _ddResult;
 
@@ -45,7 +96,6 @@ namespace DBwin
 					}
 				}
 			}
-		
 
 		/// <summary>
 		/// Tipo di dato
@@ -64,6 +114,13 @@ namespace DBwin
 			get => _tipoDialog;
 			set => _tipoDialog = value;
 			}
+
+		public TipoRicercaEnum TipoRicerca
+			{
+			get => _tipoRicerca;
+			set => _tipoRicerca = value;
+			}
+
 		/// <summary>
 		/// La dialog richiesta ha abilitati i controlli di scrittura o modifica
 		/// </summary>
@@ -76,12 +133,34 @@ namespace DBwin
 		/// <summary>
 		/// COSTRUTTORE
 		/// </summary>
+		/// <param name="imp">Impostazioni</param>
+		public DialogData(Impostazioni imp)
+			{
+			Init(imp);
+			}
+
+		/// <summary>
+		/// COSTRUTTORE, inizializza i campi codice e modifica (chiave principale)
+		/// </summary>
+		/// <param name="imp">Impostazioni</param>
+		/// <param name="cod">codice</param>
+		/// <param name="mod">modifica</param>
+		public DialogData(Impostazioni imp, string cod, string mod)
+			{
+			Init(imp);
+			SetTesto(imp.Config.CampoCodice, cod);
+			SetTesto(imp.Config.CampoModifica, mod);
+			}
+
+		/// <summary>
+		/// Inizializza (operazioni del costruttore vuoto)
+		/// </summary>
 		/// <param name="imp"></param>
-		public DialogData(ref Impostazioni imp)
+		void Init(Impostazioni imp)
 			{
 			_imp = imp;
 			campi = new Dictionary<string, string>();
-			selezioni = new Dictionary<string, int>();
+			selezioni = new Dictionary<string, Selezione>();
 			_canWrite = false;
 
 			foreach (DatiCampo dc in _imp.CampiTesto())
@@ -90,7 +169,7 @@ namespace DBwin
 				}
 			foreach (DatiCampo dc in _imp.CampiLista())
 				{
-				selezioni.Add(dc.query, -1);
+				selezioni.Add(dc.query, new Selezione());
 				}
 			}
 
@@ -100,12 +179,25 @@ namespace DBwin
 		/// <param name="nome"></param>
 		/// <param name="n"></param>
 		/// <returns></returns>
-		public bool Set(string nome, int n)
+		public bool SetSelezione(string nome, int n)
 			{
 			bool ok = false;
 			if (selezioni.ContainsKey(nome))
 				{
-				selezioni[nome] = n;
+				selezioni[nome].Indice = n;
+				selezioni[nome].Testo = string.Empty;	
+				ok = true;
+				}
+			return ok;
+			}
+
+		public bool SetSelezione(string nome, string s)
+			{
+			bool ok = false;
+			if (selezioni.ContainsKey(nome))
+				{
+				selezioni[nome].Indice = -1;
+				selezioni[nome].Testo = s;
 				ok = true;
 				}
 			return ok;
@@ -117,7 +209,7 @@ namespace DBwin
 		/// <param name="nome"></param>
 		/// <param name="s"></param>
 		/// <returns></returns>
-		public bool Set(string nome, string s)
+		public bool SetTesto(string nome, string s)
 			{
 			bool ok = false;
 			if (campi.ContainsKey(nome))
@@ -127,18 +219,18 @@ namespace DBwin
 				}
 			return ok;
 			}
-
+		
 		/// <summary>
 		/// Estrae l'indice della linea selezionata del campo
 		/// </summary>
 		/// <param name="nome">nome del campo</param>
 		/// <returns></returns>
-		public int GetSelection(string nome)
+		public int GetSelezione(string nome)
 			{
 			int i = -1;
 			if (selezioni.ContainsKey(nome))
 				{
-				i = selezioni[nome];
+				i = selezioni[nome].Indice;
 				}
 			return i;
 			}
@@ -148,7 +240,7 @@ namespace DBwin
 		/// </summary>
 		/// <param name="nome">nome del campo</param>
 		/// <returns></returns>
-		public string GetText(string nome)
+		public string GetTesto(string nome)
 			{
 			string s = string.Empty;
 			if (campi.ContainsKey(nome))
@@ -163,16 +255,34 @@ namespace DBwin
 		/// </summary>
 		/// <param name="nome"></param>
 		/// <returns></returns>
-		public string GetSelectedText(string nome)
+		public string GetTestoSelezionato(string nome)
 			{
 			string s = string.Empty;
-			int i = GetSelection(nome);
-			if (i > -1)
+			int i = -1;
+			if (selezioni.ContainsKey(nome))
 				{
-				s = _imp.DatoListaDaNomeCampo(nome, i);
+				i = selezioni[nome].Indice;
+				if(i > -1)
+					{
+					s = _imp.DatoListaDaNomeCampo(nome, i);
+					}
+				else
+					{
+					s = selezioni[nome].Testo;
+					}
 				}
 			return s;
 			}
+		//public string GetTestoSelezionato(string nome)
+		//	{
+		//	string s = string.Empty;
+		//	int i = GetSelezione(nome);
+		//	if (i > -1)
+		//		{
+		//		s = _imp.DatoListaDaNomeCampo(nome, i);
+		//		}
+		//	return s;
+		//	}
 
 		/// <summary>
 		/// Imposta i campi presenti in base a quelli letti dal dizionario (proveniente da una query)
@@ -221,7 +331,7 @@ namespace DBwin
 										}
 									if(indexLista != -1)
 										{
-										Set(dc.query, indexLista);
+										SetSelezione(dc.query, indexLista);
 										}
 									}
 								}
@@ -256,7 +366,7 @@ namespace DBwin
 #endif
 											}
 
-										Set(dc.query, dict[dc.query]);	// Imposta il testo
+										SetTesto(dc.query, dict[dc.query]);	// Imposta il testo
 										}
 									}
 								}
@@ -295,7 +405,7 @@ namespace DBwin
 			foreach(var x in selezioni)
 				{
 				string s = string.Empty;
-				int v = x.Value;
+				int v = (x.Value).Indice;
 				if (v > -1)
 					{
 					s = _imp.DatoListaDaNomeCampo(x.Key, v);
@@ -325,12 +435,12 @@ namespace DBwin
 						{
 						case Impostazioni.TipoInput.lista:
 							{
-							txt = GetSelectedText(dc.query);
+							txt = GetTestoSelezionato(dc.query);
 							}
 						break;
 						case Impostazioni.TipoInput.testo:
 							{
-							txt = GetText(dc.query);
+							txt = GetTesto(dc.query);
 							}
 						break;
 						}

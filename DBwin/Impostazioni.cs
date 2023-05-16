@@ -73,7 +73,7 @@ namespace DBwin
 		/// </summary>
 		static Impostazioni()
 			{
-			nTp = Enum.GetNames(typeof(TipoCodice)).Length - 1;
+			nTp = Enum.GetNames(typeof(TipoCodice)).Length /*- 1*/;
 			sNTC = new string[nTp];
 			Array.Copy(Enum.GetNames(typeof(TipoCodice)), 0, sNTC, 0, nTp);
 			}

@@ -2,20 +2,19 @@
 #undef RESPONSE_DEBUG
 
 
-#warning DA FARE
 //////// v	Leggere ed importare in strutture dati le tabelle materiali, costruttori, prodotti.
 //////// v	Scrivere nuova Form, analoga a LoginForm, per inserire più dati, leggere i valori dalle tabelle importate, verificare i valori.
 #warning .  Assicurarsi che possano essere aperti nuovi Form multipli. Ogni Form deve avere le sue strutture dati private.
 //////// x	Valutare se il progetto può essere WPF invece che Windows Form. Ma perderebbe la compatibilità con Se31: lasciare ivariato.
 //////// v	Scrivere i Form per l'inserimento di nuovi codici (di vario tipo).
 //////// v	Usare menù a discesa con i tipi (disegno, schema, commerciale...) per selezionare i controlli Form oppure usare Form differenti.
-#warning .  Studiare un form generico per le query, basate su condizioni multiple. 
+////////	Studiare un form generico per le query, basate su condizioni multiple. 
 //////// x	Creare un account su altervista e provare il database online. Non possible, non accetta le stored procedure
 //////// v	ATTENZIONE ! Dopo ogni comando (check stat o altro comando che imposta $this->sts = 1) viene visualizzato lo stato di utente connesso in lettura, invece che abilitata scrittura.
 //////// v	Aggiungere gestore click su tabelle, per copiare il codice (ed usarlo per operazioni successive).
 //////// v	Verificare funzione per leggere tutti i dati di un codice e salvarli in un oggetto
 #warning	Aggiungere, al Form di inserimento codice, la possibilità di usare l'oggetto con i dati di un codice.
-#warning	Usare listbox/combo: devono diventare textbox editabili ma anche con lista e restituire una stringa.
+////////	Usare listbox/combo: devono diventare textbox editabili ma anche con lista e restituire una stringa.
 //////// v	Impostare i flag 'dirty' in u_connessi separatamente per liste, per ogni utente. Dopo caricamento, resettare il flag.
 #warning	Alla richiesta di lista, aggiungere flag reinvia comunque. Il programma PHP conosce l'ID dell'utente.
 //////// v	Nella risposta di una lista, includere l'opzione: no change.
@@ -23,9 +22,8 @@
 #warning	Oppure salvare l'indice in variabile di sessione PHP ed incudere un flag 'more...' nella risposta. Il programma C#, in tal caso, eseguire un'altra http_request ed unirla ai dati della precedente.
 #warning	Eventuale coda FIFO per i comandi (ma poi come trattare le risposte ?)
 ////////	Usare una classe Log per i messaggi da inviare alla rich text box.
-#warning	Aggiungere, alla classe Log, scrittura in un file di log opzionale (attenzione se più istanze del programma)
 ////////	I messaggi ricevuti dalla classe Log devono avere un timestamp.
-#warning	Allungare il ritardo nel file php: var $pwdDelay = ... DA 500 A 3000 (contro attacchi).
+#warning	Prima della versione finale, allungare il ritardo nel file php: var $pwdDelay = ... da 500 a 3000 (contro attacchi).
 ////////	Disabilitare i controlli senza cambiare i colori di sfondo e primo piano (derivare nuova classe)
 #warning	Correggere il messagggio di log: 'Trovato 1 elemento' anche se il contenuto è 'errore'
 
@@ -76,7 +74,7 @@ namespace DBwin
 
 		FileInfo fileinfo;
 		string configfile;
-		List<string> config;
+		List<string> config = null;
 		static Connessione conn = null;
 		bool startOk = false;
 		Encryption enc = null;			// Classe per crittografia aes
@@ -210,19 +208,18 @@ namespace DBwin
 			switch(dd.Tipo)
 				{
 				case Impostazioni.TipoCodice.assieme:
-					{
-					}
+					{}
 					break;
 				case Impostazioni.TipoCodice.particolare:
-					{
-					}
+					{}
 					break;
 				case Impostazioni.TipoCodice.schema:
-					{
-					}
+					{}
 					break;
 				case Impostazioni.TipoCodice.commerciale:
 					{
+					// Le descrizioni commerciali vengono composte da MySQL combinando gli altri campi
+					#if false
 					string des = dd.GetText(imp.Config.CampoDescrizione);
 					string desC =	dd.GetSelectedText(imp.Config.CampoProdotto) + ' ' +
 									(dd.GetSelectedText(imp.Config.CampoCostruttore)).ToUpper() + ' ' + 
@@ -238,6 +235,7 @@ namespace DBwin
 							ok = false;
 							}
 						}
+					#endif
 					}
 					break;
 				}
@@ -245,13 +243,13 @@ namespace DBwin
 			// Corregge le lunghezze superiori al massimo consentito (solo per i campi testo)
 			foreach(DatiCampo dc in imp.CampiTesto())
 				{
-				string txt = dd.GetText(dc.query);
+				string txt = dd.GetTesto(dc.query);
 				if(txt.Length > dc.lmax)
 					{
 					txt = txt.Substring(0,dc.lmax);
 					if(correggi)
 						{
-						dd.Set(dc.query, txt);
+						dd.SetTesto(dc.query, txt);
 						}
 						else
 						{
@@ -259,6 +257,8 @@ namespace DBwin
 						}
 					}
 				}
+
+			#warning Correggere anche il testo delle selezioni (con indice == -1): nuovo testo
 
 			return ok;
 			}
@@ -336,18 +336,18 @@ namespace DBwin
 			}
 		private void eliminaCodiceToolStripMenuItem_Click(object sender, EventArgs e)
 			{
-			// EliminaCodice();
 			Vedi(DialogData.TipoDialogEnum.Elimina);
 			}	
 		private void nuovoCodice_Click(object sender, EventArgs e)
 			{
 			InsertNewCode();
-			}
-		
+			}	
 		#endregion
 
 
+
 		#region Connessione e utente
+
 		/// <summary>
 		/// Esegue controllo e refresh
 		/// </summary>
@@ -522,16 +522,19 @@ namespace DBwin
 			UpdateLayout();
 			return;
 			}
+
 		#endregion
 
 
+
 		#region Inserimento e modifica
+
 		/// <summary>
 		/// Apre la dialog di query (in ricerca)
 		/// </summary>
 		private void Query()
 			{
-			DialogData dd = new DialogData(ref imp);
+			DialogData dd = new DialogData(imp);
 			dd.TipoDialog = DialogData.TipoDialogEnum.Ricerca;
 			dd.CanWrite = false;
 			if(QueryDialog(ref dd))			// Query...
@@ -546,7 +549,7 @@ namespace DBwin
 		/// <param name="dd"></param>
 		private void InsertNewCode()
 			{
-			DialogData dd = new DialogData(ref imp);
+			DialogData dd = new DialogData(imp);
 			dd.TipoDialog = DialogData.TipoDialogEnum.Nuovo;
 			dd.CanWrite = this.CanWrite;
 
@@ -556,13 +559,14 @@ namespace DBwin
 				}
 			}
 
+#if DEBUG
 		/// <summary>
 		/// Inserisce un nuovo codice con il contenuto della dialog
 		/// </summary>
 		/// <param name="dd"></param>
 		private async void InsertCodeNew()
 			{
-			DialogData dd = new DialogData(ref imp);
+			DialogData dd = new DialogData(imp);
 			dd.TipoDialog = DialogData.TipoDialogEnum.Nuovo;
 			
 			if (conn != null)
@@ -592,12 +596,13 @@ namespace DBwin
 
 					if (bInsert)
 						{
-						#warning Completare verifica risposta, poi lettura codice e inserimento nella dialog.
 						res = await conn.InserisciNew(dd.Tipo, p);
 						}
 					}
 				}
 			}
+
+
 
 		/// <summary>
 		/// Apre una dialog di ricerca per codice e modifica ed elimina il codice.
@@ -607,7 +612,9 @@ namespace DBwin
 			Risposta res;
 			Tuple<string,string,string> codice = new Tuple<string,string,string>(string.Empty, string.Empty, string.Empty);
 			bool ok = false;
-			res = await CercaPerCodice();
+
+			string[] codmod = ChiediCodicePerRicerca();					// Richiede codice e modifica, per eliminazione
+			res = await CercaPerCodice(codmod[0], codmod[1]);			// Esegue ricerca
 
 			switch(res.righe)
 				{
@@ -640,7 +647,6 @@ namespace DBwin
 
 			if(ok)
 				{
-				#warning	Verificare i messaggi di risposta
 				res = await conn.Elimina(codice.Item1, codice.Item2);
 				//log.ScriviLog(res.MessagesToString());
 				}
@@ -648,7 +654,7 @@ namespace DBwin
 			UpdateLayout();
 
 			}
-		
+
 		/// <summary>
 		/// Prepara l'array di parametri, chiama la dialog e lo riempie.
 		/// Usa solo i parametri da 1 in poi.
@@ -666,7 +672,6 @@ namespace DBwin
 			return p;
 			}
 		
-#if DEBUG
 		private async void ModificaCodiceSingolo()
 			{
 			bool ok = false;
@@ -693,7 +698,7 @@ namespace DBwin
 				}
 			if (ok)
 				{
-				DialogData dd = new DialogData(ref imp);
+				DialogData dd = new DialogData(imp);
 				int nsetcampi;
 				dd.Set(dct, out nsetcampi);
 				dd.TipoDialog = DialogData.TipoDialogEnum.Modifica;
@@ -728,8 +733,6 @@ namespace DBwin
 					{
 					if(dd.CanWrite)
 						{
-						//MessageBox.Show($"Contenuto della dialog:\n{dd.ToString()}");
-						
 						p = dd.ToParamsArray();						// Ottiene l'array dei parametri
 						if (p != null)
 							{
@@ -783,13 +786,11 @@ namespace DBwin
 					case DialogData.DialogDataResult.Scrivi:
 						{
 						res = await conn.InserisciNew(dd.Tipo, p);
-						#warning VERIFICARE RISPOSTA
 						}
 						break;
 					case DialogData.DialogDataResult.Elimina:
 						{
-						res = await conn.Elimina(p[1], p[2]);
-						#warning VERIFICARE RISPOSTA
+						res = await conn.Elimina(p[1], p[2]);				
 						}
 					break;
 					}
@@ -797,59 +798,70 @@ namespace DBwin
 
 			if(res != null)
 				{
-				MessageBox.Show(res.ToString());
+
+				#warning Analizzare la risposta (se non ci sono errori)
+	
+				// MessageBox.Show(res.ToString());
 
 				}
 			}
-#endregion
+
+		#endregion
+
+
 
 		#region Query
+
 		/// <summary>
 		/// Apre la dialog di ricerca per codice, poi mostra quella dei risultati
 		/// </summary>
 		private async void Vedi(DialogData.TipoDialogEnum opSuDoppioClick)
 			{
-			Risposta res;
-			res = await CercaPerCodice();
-			//QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp, DialogData.TipoDialogEnum.Modifica);
-			QueryResultForm qrf = new QueryResultForm("Risultati ricerca", imp, opSuDoppioClick);
-			//log.ScriviLog(res.MessagesToString());
-			if( !res.isEmpty)
-				{
-				if(res.righe > 0)
-					{
-					qrf.SetResponse(res);
-					qrf.Show();
-					}
-				else
-					{
-					MessageBox.Show("Nessun risultato trovato");
-					}
-				}
+			int righe;
+
+			string[] codmod = ChiediCodicePerRicerca();						// Richiede codice e modifica, per ricerca
+			DialogData dd = new DialogData(imp, codmod[0], codmod[1]);		// Crea una DialogData con i campi (solo cod e mod) per la ricerca
+			dd.TipoRicerca = DialogData.TipoRicercaEnum.PerCodice;			// Imposta il tipo di ricerca
+			ResultForm qrf = new ResultForm("Risultati ricerca", imp, dd, opSuDoppioClick);		// Crea il form...
+			righe = await qrf.Cerca();										// Esegue la ricerca (asincrona)
+
 			UpdateLayout();
 			}
 
 		/// <summary>
-		/// Dialog di ricerca per codice
+		/// Richiede codice e modifica con un form.
 		/// </summary>
-		/// <returns>Risposta del database con le descrizioni</returns>
-		private async Task<Risposta> CercaPerCodice()
+		/// <returns>string[2] codice e modifica</returns>
+		private string[] ChiediCodicePerRicerca()
+			{
+			string[] codmod = new string[2];
+			if (conn != null)
+				{
+				InputForm lf = new InputForm("Codice", new string[] { "Codice", "Modifica" }, out codmod, "Cerca", "Annulla", "Usare * per tutti i caratteri o <spazio> per nessun carattere");
+
+				if (lf.ShowDialog() == DialogResult.OK)
+					{
+					if (codmod[0] == "") codmod[0] = "*";
+					if (codmod[1] == "") codmod[1] = "*";
+					}
+				}
+			return codmod;
+			}
+
+		/// <summary>
+		/// Esegue ricerca con codice e modifica
+		/// </summary>
+		/// <param name="cod">string[2]: codice, modifica</param>
+		/// <returns>Task<Risposta></Risposta></returns>
+		public async Task<Risposta> CercaPerCodice(string cod, string mod)
 			{
 			Risposta res = new Risposta();
 			if (conn != null)
 				{
-				string[] par;
-				InputForm lf = new InputForm("Codice", new string[] { "Codice", "Modifica" }, out par, "Cerca", "Annulla", "Usare * per tutti i caratteri o <spazio> per nessun carattere");
-
-				if (lf.ShowDialog() == DialogResult.OK)
-					{
-					if (par[0] == "") par[0] = "*";
-					if (par[1] == "") par[1] = "*";
-					res = await conn.VediDescrizioni(par[0], par[1]);
+				res = await conn.VediDescrizioni(cod, mod);
 #if RESPONSE_DEBUG
-					MessageBox.Show($"{res.ToString()}",$"{url}");
+				MessageBox.Show($"{res.ToString()}",$"{url}");
 #endif
-					}
 				}
 			return res;
 			}
@@ -897,9 +909,15 @@ namespace DBwin
 			return dict;
 			}
 #endif 
+		/// <summary>
+		/// Estrae dal database tutti i dati del codice codmod,mod e li inserisce in una DialogData
+		/// </summary>
+		/// <param name="cod"></param>
+		/// <param name="mod"></param>
+		/// <returns></returns>
 		public async Task<DialogData> DialogDataDaCodiceSingolo(string cod, string mod)
 			{
-			DialogData dd = new DialogData(ref imp);
+			DialogData dd = new DialogData(imp);
 			Dictionary<string, string> dict = new Dictionary<string, string>();
 			if (conn != null)
 				{
@@ -968,10 +986,13 @@ namespace DBwin
 				}
 			return ok;
 			}
+
 		#endregion
 
 
+
 		#region Interfaccia
+
 		/// <summary>
 		/// Aggiorna il layout e
 		/// avvia o arresta il timer in base allo stato della connessione
@@ -1076,10 +1097,13 @@ namespace DBwin
 			strb.Append(dt.ToString("HHmm", System.Globalization.CultureInfo.InvariantCulture));
 			return strb.ToString();
 			}
+
 		#endregion
 
 
+
 		#region PER TEST
+
 		private void LOGINPippoToolStripMenuItem_Click(object sender, EventArgs e)
 			{
 			Login("pippo", "123");
@@ -1104,6 +1128,7 @@ namespace DBwin
 			{
 			Dirty(DirtyEnum.costruttori);
 			}
+
 		#endregion
 
 

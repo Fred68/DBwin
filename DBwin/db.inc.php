@@ -42,7 +42,7 @@ class Connessione
 	var $sts = "";		// Stati. 0=disconnesso, 1:in lettura, 2:in scrittura, -1:errore, -2:disconnesso per inattività
 	var $usr = "";		// Nome utente
 	var $sleepDelay = 200;	// ms Ritardo dopo il comando
-    var $pwdDelay = 500; // ms Ritardo dopo inserimento password (contro attacchi ripetuti)
+    var $pwdDelay = 200; // ms Ritardo dopo inserimento password (contro attacchi ripetuti)
 
 	// NOMI DEI PARAMETRI delle funzioni sql
     //
@@ -51,7 +51,7 @@ class Connessione
 	var $p_st = "_st";			// stato
 	var $p_cod = "_cod";
 	var $p_mod = "_mod";
-	var $p_desc = "_desc";
+	var $p_desc = "_desc";      // Descrizione (anche per materiale, costruttore ecc...)
 	var $p_mat = "_mat";
 	var $p_cos = "_cos";
 	var $p_pro = "_pro";
@@ -182,6 +182,16 @@ class Connessione
                 $this->Elimina($this->par[1], $this->par[2]);
                 }
                 break;
+            //case "insCos":
+            //case "insPro":
+            //case "insMat":
+            //    {
+            //    $this->InserisciInTab($this->par[0], $this->par[1]);
+            //    }
+            //    break;
+
+
+
 			}
 		usleep($this->sleepDelay*1000);
 		echo "\n".$sep."MSG".$sep.$this->msg.$sep."MSG".$sep."\n";
@@ -680,7 +690,7 @@ class Connessione
 		$this->cmd["set_uid_stat"] = "SELECT Set_uid_stat( :".$this->p_uid.", "." :".$this->p_st.");";
 		$this->cmd["get_uid_stat"] = "SELECT Get_uid_stat( :".$this->p_uid.");";
 		$this->cmd["get_uid_delay"] = "SELECT Get_uid_delay( :".$this->p_uid.");";
-        // Lettura
+        // Lettura articoli
         $this->cmd["countCode"] = "CALL ContaCodici( :" . $this->p_cod . ", " . " :" . $this->p_mod . ");";
 		$this->cmd["materiali"] = "CALL ListaMateriali( :".$this->p_uid.");";
 		$this->cmd["prodotti"] = "CALL ListaProdotti( :".$this->p_uid.");";
@@ -688,11 +698,15 @@ class Connessione
 		$this->cmd["dirty"] = "CALL Dirty( :".$this->p_uid.", "." :".$this->p_dirty.");";
         $this->cmd["vedi"] = "CALL VediDescrizioni( :" . $this->p_limite . ", :" . $this->p_cod . ", :" . $this->p_mod . ");";
 		$this->cmd["getCode"] = "CALL GetCode( :".$this->p_cod.", "." :".$this->p_mod.");";
-		// Inserimento
+		// Inserimento articoli
 		$this->cmd["insAsm"] = "CALL InsAssieme( :".$this->p_cod.", :".$this->p_mod.", :".$this->p_desc.", :".$this->p_uid.");";
 		$this->cmd["insSch"] = "CALL InsSchema( :".$this->p_cod.", :".$this->p_mod.", :".$this->p_desc.", :".$this->p_uid.");";
 		$this->cmd["insPar"] = "CALL InsParticolare( :".$this->p_cod.", :".$this->p_mod.", :".$this->p_desc.", :".$this->p_uid.", :".$this->p_mat.");";
-		$this->cmd["insCom"] =  "CALL InsCommerciale( :".$this->p_cod.", :".$this->p_mod.", :".$this->p_uid.", :".$this->p_cos.", :".$this->p_pro.", :".$this->p_model.", :".$this->p_dett.");";
+		$this->cmd["insCom"] = "CALL InsCommerciale( :".$this->p_cod.", :".$this->p_mod.", :".$this->p_uid.", :".$this->p_cos.", :".$this->p_pro.", :".$this->p_model.", :".$this->p_dett.");";
+        // Inserimento tabelle
+        //$this->cmd["insCos"] = "CALL _InsCostruttore( :" . $this->p_desc . ", 1);";
+        //$this->cmd["insPro"] = "CALL _InsProdotto( :" . $this->p_desc . ", 1);";
+        //$this->cmd["insMat"] = "CALL _InsMateriale( :" . $this->p_desc . ", 1);";
         // Eliminazione
         $this->cmd["delete"] = "CALL DelCodice( :" . $this->p_cod . ", " . " :" . $this->p_mod . ");";
 
@@ -935,7 +949,7 @@ class Connessione
 						// InsAssieme(_cod, _mod, _desc, _uid)
 						// InsSchema(_cod, _mod, _desc, _uid)
 						// InsParticolare(_cod, _mod, _desc, _uid, _mat)
-						// InsCommerciale(_cod, _mod, _uid. _cos. _pro, _model, _dett)
+						// InsCommerciale(_cod, _mod, _uid, _cos, _pro, _model, _dett)
 						switch($_typ)
 							{
 							case 'assieme':
@@ -1038,6 +1052,66 @@ class Connessione
 		return $txt;
 		}
 
+    // Inserisce nuovo materiale, prodotto, costruttore
+    // $_tabella =
+    //
+    //function InserisciInTab($_tabella, $_desc)
+    //{
+    //    $txt = "";
+    //    if (isset($_SESSION["USER"]) && isset($_SESSION["STS"]) && isset($_SESSION["UID"])) {
+    //        if ($this->ConnectDB()) {
+    //            $this->sts = $this->GetUserStat($_SESSION["UID"]);
+    //            if ($this->sts == 2) {
+    //                $txt = "";
+    //                $_uid = $_SESSION["UID"];
+    //                // MySql procedure:
+    //                // _Ins{Costruttore;Prodotto;Materiale}(_desc, 1)
+    //                // $_tabella={'insCos','insPro','insMat')
+    //                try {
+    //                    switch ($_tabella) {
+    //                        case 'insCos':
+    //                        case 'insPro':
+    //                        case 'insMat': {
+    //                                $txt = "\nTABELLA: " . $_tabella . "\n";
+    //                                $stmt = $this->conn->prepare($this->cmd[$_tabella]);
+    //                                $stmt->bindParam(":" . $this->p_desc, $_desc);
+    //                                $stmt->execute();
+    //                            }
+    //                            break;
+    //                        default: {
+    //                                $txt = "\nTABELLA: " . "non gestita" . "\n";
+    //                            }
+    //                            break;
+    //                    }
+    //                } catch (PDOException $e) {
+    //                    $this->Err("Errore inserimento " . $_tabella . $e->getMessage());
+    //                }
+
+    //                $txt .= "descrizione: " . $_desc . "\n";
+    //                $txt .= "User ID: " . $_uid . "\n";
+
+    //                // --------------------------------------------------
+    //                // Richiamare la lettura del codice appena inserito
+    //                // --------------------------------------------------
+
+    //                $this->Dat($txt);
+    //                $this->Msg($txt);
+
+    //            } else {
+    //                $this->Msg("Utente non abilitato alla scrittura");
+    //            }
+    //        } else {
+    //            $this->sts = 0;
+    //            $this->Msg("Utente non connesso");
+    //        }
+    //    } else {
+    //        $this->sts = 0;
+    //        $this->Msg("Utente non connesso");
+    //    }
+
+    //    $this->DisconnectDB();
+    //    return $txt;
+    //}
     // Elimina codice
     //
     function Elimina($_cod, $_mod)

@@ -2,25 +2,28 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace DBwin
 	{
-	public partial class QueryResultForm : Form
+	public partial class ResultForm : Form
 		{
 		Risposta res;
 		Impostazioni imp;
 		DialogData.TipoDialogEnum _opDoppioClick;
+		DialogData ddq;
 
 		/// <summary>
 		/// COSTRUTTORE
 		/// </summary>
 		/// <param name="title"></param>
-		public QueryResultForm(string title,  Impostazioni imp, DialogData.TipoDialogEnum opDoppioClick)
+		public ResultForm(string title, Impostazioni imp, DialogData dDquery, DialogData.TipoDialogEnum opDoppioClick)
 			{
 			InitializeComponent();
 			this.Text = title;
 			this.imp = imp;
 			this._opDoppioClick = opDoppioClick;
+			this.ddq = dDquery;
 			}
 
 		/// <summary>
@@ -31,6 +34,8 @@ namespace DBwin
 			{
 			res = _res;
 			dataGridView1.Columns.Clear();
+			#warning Forse superfluo dataGridView.Colums.Clear() e dataGridView.Rows.Clear()
+			dataGridView1.Rows.Clear();
 			dataGridView1.ColumnCount = res.colonne;
 			for (int c = 0; c < res.colonne; c++)
 				{
@@ -48,7 +53,7 @@ namespace DBwin
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private async void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+		private async void DataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
 			{
 			string cod, mod;
 			if(GetCodice(e.RowIndex, out cod, out mod))
@@ -112,6 +117,59 @@ namespace DBwin
 				ok = true;
 				}
 			return ok;
+			}
+
+		/// <summary>
+		/// Esegue una ricerca per codice, asincrona, usando i dati della DialogData memorizzata
+		/// </summary>
+		/// <returns>Numero di righe trovate</returns>
+		public async Task<int> Cerca()
+			{
+			int righe = 0;								// Azzera il risultato
+			res = null;
+			switch(ddq.TipoRicerca)						// Ricerca per codice o completa (su tutti i campi non vuoti)
+				{
+				case DialogData.TipoRicercaEnum.PerCodice:
+					{
+					res = await imp.Mf.CercaPerCodice(ddq.GetTesto(imp.Config.CampoCodice), ddq.GetTesto(imp.Config.CampoModifica));
+					}
+					break;
+				default:
+					MessageBox.Show("Ricerca completa mancate, ancora da scrivere !");
+					break;
+				}
+			if(res != null)
+				{	
+				if( !res.isEmpty)
+					{
+					if(res.righe > 0)
+						{
+						SetResponse(res);				// Imposta il contenuto del form
+						righe = res.righe;
+						Show();
+						}
+					}
+				}
+			return righe;
+			}
+
+		private void ResultForm_Load(object sender, EventArgs e)
+			{
+			int h = btRefresh.Height + 8;
+			dataGridView1.ScrollBars = ScrollBars.Both;					// Non funziona
+			dataGridView1.Location = new System.Drawing.Point(0, h);
+			dataGridView1.Size = new System.Drawing.Size(this.Size.Width, this.Size.Height-h);
+			dataGridView1.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Top;
+			}
+
+		/// <summary>
+		/// Ripete l'ultima ricerca memorizzata con il Form
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private async void btRefresh_Click(object sender, EventArgs e)
+			{
+			await Cerca();		// Ripete l'ultima ricerca, leggendo i valori aggiornati nel database
 			}
 		}
 	}

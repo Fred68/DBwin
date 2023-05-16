@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Linq;				// Per Take
 
 namespace DBwin
 	{
@@ -52,6 +53,7 @@ namespace DBwin
 						(dd.TipoDialog != DialogData.TipoDialogEnum.Elimina);
 			return enabled;
 			}
+
 		/// <summary>
 		/// Compone i controlli della dialog
 		/// </summary>
@@ -59,8 +61,10 @@ namespace DBwin
 		bool SetupDialog()
 			{
 			bool ok = false;
-
-			lbType.Items.AddRange(Impostazioni.nomiTipi);
+			
+			// Riempie la listbox con i tipi. Se il tipo di dialog è di ricerca, usa anche il tipo 'nessuno'
+			int numele = Impostazioni.nomiTipi.Length - ((dd.TipoDialog == DialogData.TipoDialogEnum.Ricerca) ? 0 : 1 );
+			lbType.Items.AddRange(Impostazioni.nomiTipi.Take(numele).ToArray());
 
 			// Ricava la posizione dei controlli della prima riga
 			Control ctrlLab = FindControlByName("LABEL");
@@ -106,9 +110,7 @@ namespace DBwin
 									// Abilita o disabilita il controllo 
 									cb.Enabled = CrtlsEnabled();
 
-#warning Usare stile DropDown e memorizzare la stringa, non la selezione.
-#warning Quando si aggiunge un valore ad una lista, impostare il corrispondente flag dirty per tutti gli utenti: in mysql.
-#warning Prima di un inserimento o consultazione, interrogare sempre la situazione delle liste (e fare un refresh con il Check)
+							#warning Prima di un inserimento o consultazione, interrogare le liste (refresh con il Check)
 
 
 									string[,] tabella = dd.Impostazioni.Lista(dc.tabella);
@@ -149,6 +151,8 @@ namespace DBwin
 						}
 					}	// Fine del foreach()
 
+				#warning Se form di modifica di un commerciale, il campo descrizione deve essere disabilitato alle modifiche.
+
 				// Imposta il nome del pulsante btOK
 				switch(dd.TipoDialog)
 					{
@@ -185,7 +189,7 @@ namespace DBwin
 			}
 
 		/// <summary>
-		/// Copia i dati dall'oggetto DialogData alla dialog
+		/// Copia i dati dall'oggetto DialogData nel form
 		/// </summary>
 		/// <returns></returns>
 		bool FillDialog()
@@ -203,12 +207,12 @@ namespace DBwin
 							case Impostazioni.TipoInput.lista:
 								{
 								ComboBoxMod cb = (ComboBoxMod)ctrls[dc.query];
-								int sel = dd.GetSelection(dc.query);
+								int sel = dd.GetSelezione(dc.query);
 								if ((sel >= 0) && (sel < cb.Items.Count))
 									{
 									bool cbEnabled = cb.Enabled;
 									cb.Enabled = true;
-									cb.SelectedIndex = dd.GetSelection(dc.query);
+									cb.SelectedIndex = dd.GetSelezione(dc.query);
 									cb.Enabled = cbEnabled;
 									}
 								}
@@ -218,7 +222,7 @@ namespace DBwin
 								TextBoxMod tb = (TextBoxMod)ctrls[dc.query];
 								bool tbEnabled = tb.Enabled;
 								tb.Enabled = true;
-								tb.Text = dd.GetText(dc.query);
+								tb.Text = dd.GetTesto(dc.query);
 								tb.Enabled = tbEnabled;
 								}
 							break;
@@ -247,7 +251,7 @@ namespace DBwin
 			}
 
 		/// <summary>
-		/// Copia i dati dalla dialog all'oggetto DialogData
+		/// Copia i dati dal form all'oggetto DialogData
 		/// </summary>
 		/// <returns></returns>		
 		bool ReadDialogData()
@@ -264,13 +268,20 @@ namespace DBwin
 							case Impostazioni.TipoInput.lista:
 								{
 								ComboBox cb = (ComboBox)ctrls[dc.query];
-								dd.Set(dc.query, cb.SelectedIndex);
+								if(cb.SelectedIndex != -1)
+									{
+									dd.SetSelezione(dc.query, cb.SelectedIndex);	// Memorizza l'indice (elemento esistente)...
+									}
+								else
+									{
+									dd.SetSelezione(dc.query, cb.Text);				// ...oppure il testo (elemento non ancora registrato)
+									}
 								}
 							break;
 							case Impostazioni.TipoInput.testo:
 								{
 								TextBox tb = (TextBox)ctrls[dc.query];
-								dd.Set(dc.query, tb.Text);
+								dd.SetTesto(dc.query, tb.Text);
 								}
 							break;
 							}
